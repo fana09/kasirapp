@@ -1,21 +1,11 @@
-import { eq, getTableColumns } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import db from "../../db";
-import { kategori, menu } from "../../db/schema"
+import { menu, order } from "../../db/schema"
 import { Request, Response } from 'express';
 
-export const getAllMenu = async (req: Request, res: Response) => { 
+export const getAllOrder = async (req: Request, res: Response) => { 
     try {
-        const data = await db.select({
-            ...getTableColumns(menu),
-            kategori: {
-                nama_kategori : kategori.nama,
-                jenis_kategori : kategori.jenis
-            }
-
-        })
-        .from(menu)
-        .innerJoin(kategori, eq(menu.kategori_id, kategori.id));
-
+        const data = await db.select().from(order);
         res.json({
             success: true,
             message: "Success to fetch menu",
@@ -29,9 +19,9 @@ export const getAllMenu = async (req: Request, res: Response) => {
         });
     }
 };
-export const createMenu = async (req: Request, res: Response) => { 
+export const createOrder = async (req: Request, res: Response) => { 
     try {
-        const data = await db.insert(menu).values(req.body)
+        const data = await db.insert(order).values(req.body)
         res.json({
             success: true,
             message: "Success to create menu",
@@ -45,10 +35,10 @@ export const createMenu = async (req: Request, res: Response) => {
         });
     }
 }
-export const findMenuById = async (req: Request, res: Response) => { 
+export const findOrderById = async (req: Request, res: Response) => { 
     try {
         const { id } = req.params
-        const data = await db.select().from(menu).where(eq(menu.id,Number(id)))
+        const data = await db.select().from(order).where(eq(order.id,Number(id)))
         res.json({
             success: true,
             message: "Success to find menu by id: "+id,
@@ -62,10 +52,10 @@ export const findMenuById = async (req: Request, res: Response) => {
         });
     }
 }
-export const updateMenu = async (req: Request, res: Response) => { 
+export const updateOrder = async (req: Request, res: Response) => { 
     try {
         const { id } = req.params
-        const data = await db.update(menu).set({...req.body,update_at:new Date}).where(eq(menu.id, Number(id)))
+        const data = await db.update(order).set({...req.body,update_at:new Date}).where(eq(order.id, Number(id)))
         res.json({
             success: true,
             message: "Success to update kategori",
@@ -79,10 +69,10 @@ export const updateMenu = async (req: Request, res: Response) => {
         });
     }
 }
-export const deleteMenu = async (req: Request, res: Response) => { 
+export const deleteOrder = async (req: Request, res: Response) => { 
     try {
         const { id } = req.params
-        const data = await db.delete(menu).where(eq(menu.id,Number(id)))
+        const data = await db.delete(order).where(eq(order.id,Number(id)))
         res.json({
             success: true,
             message: "Success to delete kategori "+id,
