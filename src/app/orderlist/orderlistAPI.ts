@@ -1,7 +1,7 @@
 import { eq, getTableColumns } from "drizzle-orm";
 import db from "../../db";
 import { menu, order, orderlist } from "../../db/schema"
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 export const getAllorderlist = async (req: Request, res: Response) => { 
     try {
@@ -19,9 +19,10 @@ export const getAllorderlist = async (req: Request, res: Response) => {
         .from(orderlist)
         .innerJoin(order, eq(orderlist.order_id, order.id))
         .innerJoin(menu, eq(orderlist.menu_id, menu.id));
+        
         res.json({
             success: true,
-            message: "Success to fetch menu",
+            message: "Success to fetch orderlist",
             data: data
         });
     } catch (e) {
@@ -32,29 +33,37 @@ export const getAllorderlist = async (req: Request, res: Response) => {
         });
     }
 };
+
 export const createorderlist = async (req: Request, res: Response) => { 
     try {
-        const data = await db.insert(orderlist).values(req.body)
+        // Buang 'id: 0' bawaan dari MAUI
+        const { id, ...detailPesanan } = req.body;
+
+        const [insertResult] = await db.insert(orderlist).values(detailPesanan);
+        
         res.json({
             success: true,
-            message: "Success to create menu",
-            data: []
+            message: "Success to create orderlist",
+            data: [
+                {
+                    ...detailPesanan,
+                    id: insertResult.insertId
+                }
+            ]
         });
     } catch (e) {
-        res.status(500).json({
-            success: false,
-            message: "Error: " + e,
-            data: []
-        });
+        res.status(500).json({ success: false, message: "Error: " + e, data: [] });
     }
 }
+
 export const findorderlistById = async (req: Request, res: Response) => { 
     try {
         const { id } = req.params
         const data = await db.select().from(orderlist).where(eq(orderlist.id,Number(id)))
+        
         res.json({
             success: true,
-            message: "Success to find menu by id: "+id,
+            message: "Success to find orderlist by id: " + id,
             data: data
         });
     } catch (e) {
@@ -65,14 +74,16 @@ export const findorderlistById = async (req: Request, res: Response) => {
         });
     }
 }
+
 export const updateorderlist = async (req: Request, res: Response) => { 
     try {
         const { id } = req.params
-        const data = await db.update(orderlist).set({...req.body,update_at:new Date}).where(eq(orderlist.id, Number(id)))
+        const data = await db.update(orderlist).set({...req.body, update_at: new Date()}).where(eq(orderlist.id, Number(id)))
+        
         res.json({
             success: true,
-            message: "Success to update kategori",
-            data: []
+            message: "Success to update orderlist",
+            data: [] // Untuk update, data kosong tidak masalah
         });
     } catch (e) {
         res.status(500).json({
@@ -82,14 +93,16 @@ export const updateorderlist = async (req: Request, res: Response) => {
         });
     }
 }
+
 export const deleteorderlist = async (req: Request, res: Response) => { 
     try {
         const { id } = req.params
         const data = await db.delete(orderlist).where(eq(orderlist.id,Number(id)))
+        
         res.json({
             success: true,
-            message: "Success to delete kategori "+id,
-            data: []
+            message: "Success to delete orderlist " + id,
+            data: [] // Untuk delete, data kosong tidak masalah
         });
     } catch (e) {
         res.status(500).json({

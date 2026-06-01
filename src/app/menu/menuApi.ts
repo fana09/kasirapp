@@ -1,7 +1,7 @@
 import { eq, getTableColumns } from "drizzle-orm";
 import db from "../../db";
 import { kategori, menu } from "../../db/schema"
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 export const getAllMenu = async (req: Request, res: Response) => { 
     try {
