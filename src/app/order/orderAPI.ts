@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm"; // 🌟 Tambahkan 'sql' di sini
+import { eq, sql } from "drizzle-orm"; 
 import db from "../../db";
 import { menu, order } from "../../db/schema"
 import type { Request, Response } from 'express';
@@ -22,7 +22,7 @@ export const getAllOrder = async (req: Request, res: Response) => {
 
 export const createOrder = async (req: Request, res: Response) => { 
     try {
-        // KITA BUANG 'id: 0' BAWAAN DARI MAUI
+        
         const { id, ...dataPesanan } = req.body;
 
         const [insertResult] = await db.insert(order).values(dataPesanan);
@@ -32,8 +32,8 @@ export const createOrder = async (req: Request, res: Response) => {
             message: "Success to create order",
             data: [
                 {
-                    ...dataPesanan,               // Taruh data MAUI di atas
-                    id: insertResult.insertId     // Taruh ID Database di Bawah agar tidak tertimpa!
+                    ...dataPesanan,               
+                    id: insertResult.insertId     
                 }
             ]
         });
@@ -63,7 +63,7 @@ export const findOrderById = async (req: Request, res: Response) => {
 export const updateOrder = async (req: Request, res: Response) => { 
     try {
         const { id } = req.params
-        // PERBAIKAN: new Date menjadi new Date()
+
         const data = await db.update(order).set({...req.body, update_at: new Date()}).where(eq(order.id, Number(id)))
         res.json({
             success: true,
@@ -97,13 +97,12 @@ export const deleteOrder = async (req: Request, res: Response) => {
     }
 }
 
-// 🌟 FUNGSI BARU: TOMBOL NUKLIR RESET DATA (DEV ONLY) 🌟
 export const resetAllOrders = async (req: Request, res: Response): Promise<any> => {
     try {
-        // Gembok Keamanan
+
         const sandiRahasia = req.headers['x-reset-password'];
         
-        if (sandiRahasia !== "DeveloperGanteng123") {
+        if (sandiRahasia !== "fana") {
             return res.status(403).json({ 
                 success: false,
                 message: "Akses Ditolak! Anda bukan developer.",
@@ -111,14 +110,11 @@ export const resetAllOrders = async (req: Request, res: Response): Promise<any> 
             });
         }
 
-        // Eksekusi Raw Query Drizzle untuk mematikan relasi sementara
         await db.execute(sql`SET FOREIGN_KEY_CHECKS = 0;`); 
-        
-        // ⚠️ Kosongkan tabel (Gunakan backtick pada `order` karena ia keyword SQL)
+
         await db.execute(sql`TRUNCATE TABLE orderlist;`);   
         await db.execute(sql`TRUNCATE TABLE \`order\`;`);      
-        
-        // Nyalakan kembali relasi
+
         await db.execute(sql`SET FOREIGN_KEY_CHECKS = 1;`); 
         
         res.json({ 
@@ -127,7 +123,7 @@ export const resetAllOrders = async (req: Request, res: Response): Promise<any> 
             data: []
         });
     } catch (e) {
-        // Wajib nyalakan kembali jika terjadi error agar database tidak terkunci
+
         await db.execute(sql`SET FOREIGN_KEY_CHECKS = 1;`);
         res.status(500).json({ 
             success: false,
@@ -136,3 +132,19 @@ export const resetAllOrders = async (req: Request, res: Response): Promise<any> 
         });
     }
 }
+export const batalOrder = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        await db.update(order)
+            .set({ status: 'dibatalkan', update_at: new Date() })
+            .where(eq(order.id, Number(id)));
+
+        res.json({
+            success: true,
+            message: `🔥 Order #${id} berhasil dibatalkan secara aman.`
+        });
+    } catch (e) {
+        res.status(500).json({ success: false, message: "Error: " + e });
+    }
+};

@@ -8,7 +8,9 @@ export const getAllorderlist = async (req: Request, res: Response) => {
         const data = await db.select({
             ...getTableColumns(orderlist),
             order:{
-                  total_order: order.total
+                  total_order: order.total,
+                  nama: order.nama,
+                  status: order.status
             },
             menu: {
                 gambar_menu : menu.gambar,
@@ -36,7 +38,7 @@ export const getAllorderlist = async (req: Request, res: Response) => {
 
 export const createorderlist = async (req: Request, res: Response) => { 
     try {
-        // Buang 'id: 0' bawaan dari MAUI
+      
         const { id, ...detailPesanan } = req.body;
 
         const [insertResult] = await db.insert(orderlist).values(detailPesanan);
@@ -83,7 +85,7 @@ export const updateorderlist = async (req: Request, res: Response) => {
         res.json({
             success: true,
             message: "Success to update orderlist",
-            data: [] // Untuk update, data kosong tidak masalah
+            data: [] 
         });
     } catch (e) {
         res.status(500).json({
@@ -102,7 +104,7 @@ export const deleteorderlist = async (req: Request, res: Response) => {
         res.json({
             success: true,
             message: "Success to delete orderlist " + id,
-            data: [] // Untuk delete, data kosong tidak masalah
+            data: [] 
         });
     } catch (e) {
         res.status(500).json({

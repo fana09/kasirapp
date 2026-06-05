@@ -30,6 +30,8 @@ export const menu = mysqlTable('menu', {
 export const order = mysqlTable('order', {
     id: int().autoincrement().primaryKey(),
     total: int().notNull(),
+    nama: varchar('nama', { length: 255 }),
+    status: varchar('status', { length: 50 }).default('selesai').notNull(),
     created_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
     update_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
 })
@@ -40,6 +42,7 @@ export const orderlist = mysqlTable('orderlist', {
     menu_id: int().notNull(),
     jumlah: int().notNull(),
     total: int().notNull(),
+    catatan: varchar('catatan',{length: 255}),
     created_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
     update_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },

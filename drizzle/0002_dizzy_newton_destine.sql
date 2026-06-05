@@ -1,0 +1,1 @@
+ALTER TABLE `order` ADD `status` varchar(50) DEFAULT 'selesai' NOT NULL;
