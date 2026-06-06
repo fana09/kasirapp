@@ -1,5 +1,5 @@
-import { sql, Table } from 'drizzle-orm';
-import { datetime, foreignKey, int, mysqlEnum, mysqlTable, serial, varchar } from 'drizzle-orm/mysql-core';
+import { sql } from 'drizzle-orm';
+import { datetime, foreignKey, int, mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 
 export const kategori = mysqlTable('kategoris', {
     id: int().autoincrement().primaryKey(),
@@ -18,23 +18,23 @@ export const menu = mysqlTable('menu', {
     created_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
     update_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
-    (table) => ({
-        kategori_fk: foreignKey({
-            columns: [table.kategori_id],
-            foreignColumns: [kategori.id]
-        })
+(table) => ({
+    kategori_fk: foreignKey({
+        columns: [table.kategori_id],
+        foreignColumns: [kategori.id]
     })
-)
+})
+);
 
-
-export const order = mysqlTable('order', {
+// Diubah menjadi 'orders' untuk menghindari reserved keyword MySQL
+export const orders = mysqlTable('orders', { 
     id: int().autoincrement().primaryKey(),
     total: int().notNull(),
     nama: varchar('nama', { length: 255 }),
     status: varchar('status', { length: 50 }).default('selesai').notNull(),
     created_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
     update_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
-})
+});
 
 export const orderlist = mysqlTable('orderlist', {
     id: int().autoincrement().primaryKey(),
@@ -47,21 +47,24 @@ export const orderlist = mysqlTable('orderlist', {
     update_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
 },
 (table) => ({
-        order_fk: foreignKey({
-            columns: [table.order_id],
-            foreignColumns: [order.id]
-        }),
-        menu_fk: foreignKey({
-            columns: [table.menu_id],
-            foreignColumns: [menu.id]
-        }),
-    })
-)
+    // Tambahkan onDelete: 'cascade' agar transaksi terhapus otomatis jika order induk dihapus
+    order_fk: foreignKey({
+        columns: [table.order_id],
+        foreignColumns: [orders.id]
+    }).onDelete('cascade'),
+    // Tambahkan onDelete: 'cascade' agar orderlist ikut terhapus jika menu dihapus
+    menu_fk: foreignKey({
+        columns: [table.menu_id],
+        foreignColumns: [menu.id]
+    }).onDelete('cascade'),
+})
+);
+
 export const admin = mysqlTable('admin', {
     id: int().autoincrement().primaryKey(),
     username: varchar('username', { length: 50 }).default('admin').notNull(),
-    password: varchar('password', { length: 255 }).notNull(), // Sandi masuk panel Kelola Menu
-    pin: varchar('pin', { length: 10 }).notNull(), // PIN untuk batalkan pesanan
+    password: varchar('password', { length: 255 }).notNull(),
+    pin: varchar('pin', { length: 10 }).notNull(),
     created_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
     update_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
 });

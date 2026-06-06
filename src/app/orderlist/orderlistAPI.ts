@@ -1,6 +1,6 @@
 import { eq, getTableColumns } from "drizzle-orm";
 import db from "../../db";
-import { menu, order, orderlist } from "../../db/schema"
+import { menu, orders, orderlist } from "../../db/schema"
 import type { Request, Response } from 'express';
 
 export const getAllorderlist = async (req: Request, res: Response) => { 
@@ -8,9 +8,9 @@ export const getAllorderlist = async (req: Request, res: Response) => {
         const data = await db.select({
             ...getTableColumns(orderlist),
             order:{
-                  total_order: order.total,
-                  nama: order.nama,
-                  status: order.status
+                  total_order: orders.total,
+                  nama: orders.nama,
+                  status: orders.status
             },
             menu: {
                 gambar_menu : menu.gambar,
@@ -19,7 +19,7 @@ export const getAllorderlist = async (req: Request, res: Response) => {
             }
         })
         .from(orderlist)
-        .innerJoin(order, eq(orderlist.order_id, order.id))
+        .innerJoin(orders, eq(orderlist.order_id, orders.id))
         .innerJoin(menu, eq(orderlist.menu_id, menu.id));
         
         res.json({
