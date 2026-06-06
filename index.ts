@@ -5,18 +5,23 @@ import cors from 'cors';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
+import morgan from 'morgan';
+
 
 import * as KategoriApi from './src/app/kategori/kategoriApi';
 import * as MenuApi from './src/app/menu/menuApi';
 import * as OrderApi from './src/app/order/orderAPI';
 import * as OrderListApi from './src/app/orderlist/orderlistAPI';
+import { updateKeamanan, getKeamanan } from './src/app/admin/adminAPI';
+
 
 const app = express();
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 
 app.use(cors()); 
 app.use(express.json());
 
+app.use(morgan('dev'));
 
 const uploadDir = './public/uploads';
 if (!fs.existsSync(uploadDir)) {
@@ -29,9 +34,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-
 app.use('/uploads', express.static(uploadDir)); 
 
+//route admin sandi
+app.put('/admin/:id', updateKeamanan);
+app.get('/admin/:id', getKeamanan);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!')

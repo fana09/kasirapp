@@ -57,3 +57,11 @@ export const orderlist = mysqlTable('orderlist', {
         }),
     })
 )
+export const admin = mysqlTable('admin', {
+    id: int().autoincrement().primaryKey(),
+    username: varchar('username', { length: 50 }).default('admin').notNull(),
+    password: varchar('password', { length: 255 }).notNull(), // Sandi masuk panel Kelola Menu
+    pin: varchar('pin', { length: 10 }).notNull(), // PIN untuk batalkan pesanan
+    created_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
+    update_at: datetime().default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
