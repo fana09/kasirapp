@@ -23,7 +23,7 @@ app.use(express.json());
 
 app.use(morgan('dev'));
 
-const uploadDir = './public/uploads';
+const uploadDir = path.join(process.cwd(), 'public/uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
